@@ -1,0 +1,9 @@
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase/client';
+export default function ResetPasswordPage() {
+  const router = useRouter(); const [password,setPassword]=useState(''); const [confirm,setConfirm]=useState(''); const [message,setMessage]=useState(''); const [busy,setBusy]=useState(false);
+  async function submit(e:React.FormEvent){e.preventDefault();setMessage('');if(password.length<8)return setMessage('Password must be at least 8 characters.');if(password!==confirm)return setMessage('Passwords do not match.');if(!isSupabaseConfigured||!supabase)return setMessage('Supabase is not configured.');setBusy(true);try{const {error}=await supabase.auth.updateUser({password});if(error)throw error;setMessage('Password updated successfully. You can now sign in.');setTimeout(()=>router.replace('/'),1200);}catch(err){setMessage(err instanceof Error?err.message:'Unable to update password. Open the reset link from your email again.');}finally{setBusy(false);}}
+  return <main className="min-h-screen bg-slate-50 p-5"><form onSubmit={submit} className="mx-auto mt-16 max-w-md space-y-4 rounded-2xl border bg-white p-6"><h1 className="text-xl font-semibold">Set a new password</h1><input className="w-full rounded-lg border p-3" type="password" autoComplete="new-password" minLength={8} required placeholder="New password" value={password} onChange={e=>setPassword(e.target.value)}/><input className="w-full rounded-lg border p-3" type="password" autoComplete="new-password" minLength={8} required placeholder="Confirm new password" value={confirm} onChange={e=>setConfirm(e.target.value)}/>{message&&<p role="status" className="text-sm">{message}</p>}<button disabled={busy} className="w-full rounded-lg bg-slate-900 p-3 text-white">{busy?'Updating…':'Update password'}</button></form></main>;
+}
