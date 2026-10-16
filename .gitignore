@@ -6,4 +6,3 @@ out/
 !.env.example
 *.tsbuildinfo
 .DS_Store
-.env.local
